@@ -1,0 +1,129 @@
+---
+title: "Project 2"
+author: "Yumin Wu"
+date: "October 10, 2020"
+output: rmarkdown::github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,eval=TRUE,warning=FALSE,message=FALSE,error = FALSE)
+```
+
+
+```{r}
+library(dplyr)
+library(caret)
+library(ggplot2)
+library(purrr)
+library(corrplot)
+library(rpart)
+library(gbm)
+```
+
+```{r}
+#Read in and process data
+OnlineNewsPopularity<-read.csv("../dataset/OnlineNewsPopularity.csv")
+OnlineNewsPopularity<-OnlineNewsPopularity%>%select(n_tokens_title,n_tokens_content,num_hrefs,num_self_hrefs,num_imgs,num_videos,data_channel_is_lifestyle,data_channel_is_entertainment,data_channel_is_bus,data_channel_is_socmed,data_channel_is_tech,data_channel_is_world,weekday_is_monday,weekday_is_tuesday,weekday_is_wednesday,weekday_is_thursday,weekday_is_friday,weekday_is_saturday,weekday_is_sunday,shares)
+OnlineNewsPopularity<-tbl_df(OnlineNewsPopularity)
+OnlineNewsPopularity$data_channel_is_lifestyle<-as.factor(OnlineNewsPopularity$data_channel_is_lifestyle)
+OnlineNewsPopularity$data_channel_is_entertainment<-as.factor(OnlineNewsPopularity$data_channel_is_entertainment)
+OnlineNewsPopularity$data_channel_is_bus<-as.factor(OnlineNewsPopularity$data_channel_is_bus)
+OnlineNewsPopularity$data_channel_is_socmed<-as.factor(OnlineNewsPopularity$data_channel_is_socmed)
+OnlineNewsPopularity$data_channel_is_tech<-as.factor(OnlineNewsPopularity$data_channel_is_tech)
+OnlineNewsPopularity$data_channel_is_world<-as.factor(OnlineNewsPopularity$data_channel_is_world)
+OnlineNewsPopularity$weekday_is_monday<-as.factor(OnlineNewsPopularity$weekday_is_monday)
+OnlineNewsPopularity$weekday_is_tuesday<-as.factor(OnlineNewsPopularity$weekday_is_tuesday)
+OnlineNewsPopularity$weekday_is_wednesday<-as.factor(OnlineNewsPopularity$weekday_is_wednesday)
+OnlineNewsPopularity$weekday_is_thursday<-as.factor(OnlineNewsPopularity$weekday_is_thursday)
+OnlineNewsPopularity$weekday_is_friday<-as.factor(OnlineNewsPopularity$weekday_is_friday)
+OnlineNewsPopularity$weekday_is_saturday<-as.factor(OnlineNewsPopularity$weekday_is_saturday)
+OnlineNewsPopularity$weekday_is_sunday<-as.factor(OnlineNewsPopularity$weekday_is_sunday)
+
+```
+
+```{r}
+# Form training and test data
+set.seed(1)
+train <- sample(1:nrow(OnlineNewsPopularity), size = nrow(OnlineNewsPopularity)*0.7)
+test <- setdiff(1:nrow(OnlineNewsPopularity), train)
+OnlineNewsPopDataTrain <- OnlineNewsPopularity[train, ]
+OnlineNewsPopDataTest <- OnlineNewsPopularity[test, ]
+```
+
+```{r}
+#Summarization
+news_correlation <- cor(select(OnlineNewsPopDataTrain,n_tokens_title,n_tokens_content,num_hrefs, num_self_hrefs,num_imgs,num_videos,shares))
+corrplot(news_correlation, type = "upper", tl.pos = "lt")
+corrplot(news_correlation, type = "lower", method = "number", add = TRUE, tl.pos = "n")
+ggplot(OnlineNewsPopDataTrain, aes(x = n_tokens_content, y = shares)) +
+geom_point() 
+ggplot(OnlineNewsPopDataTrain, aes(x = num_hrefs, y = shares)) +
+geom_point() 
+ggplot(OnlineNewsPopDataTrain, aes(x = num_videos, y = shares)) +
+geom_point() 
+ggplot(OnlineNewsPopDataTrain, aes(x = num_imgs, y = shares)) +
+geom_point()
+ggplot(OnlineNewsPopDataTrain, aes(x = data_channel_is_socmed, y = shares)) +
+geom_point() 
+ggplot(OnlineNewsPopDataTrain, aes(x = data_channel_is_socmed, y = shares)) +
+geom_point() 
+ggplot(OnlineNewsPopDataTrain, aes(x = data_channel_is_entertainment, y = shares)) +
+geom_point() 
+ggplot(OnlineNewsPopDataTrain, aes(x = data_channel_is_tech, y = shares)) +
+geom_point() 
+ggplot(OnlineNewsPopDataTrain, aes(x = data_channel_is_world, y = shares)) +
+geom_point() 
+
+OnlineNewsPopDataTrain %>%summarise(
+          count = n(),
+          mean_tokens_title = mean(n_tokens_title, na.rm = TRUE),
+          mean_tokens_content = mean(n_tokens_content, na.rm = TRUE),
+          mean_imgs = mean(num_imgs, na.rm = TRUE),
+          mean_videos = mean(num_videos, na.rm = TRUE),
+          mean_links = mean(num_hrefs, na.rm = TRUE),
+          mean_other_links = mean(num_self_hrefs, na.rm = TRUE)
+          )
+```
+
+```{r}
+#a (not ensemble) tree-based model
+treeFit <- train(shares~num_hrefs+num_imgs+num_videos+weekday_is_monday+data_channel_is_world+data_channel_is_tech+data_channel_is_socmed+data_channel_is_bus+data_channel_is_entertainment, 
+                  data=OnlineNewsPopDataTrain, 
+                  method="rpart", preProcess = c("center", "scale"),
+                  trControl = trainControl(method = "cv", number = 10),control=rpart.control(minsplit=20, minbucket =1, cp=0.001))
+treeFit
+plot(treeFit$finalModel)
+text(treeFit$finalModel, cex=.8)
+```
+
+```{r}
+#a boosted tree model chosen using cross-validation
+set.seed(2)
+fitControl <- trainControl(
+                           method = "cv",
+                           number = 10)
+gbmGrid <-  expand.grid(interaction.depth = c(1, 3), 
+                        n.trees = 5000, 
+                        shrinkage = 0.1,
+                        n.minobsinnode = 20)
+
+gbmFit <- train(shares~num_hrefs+num_imgs+num_videos+weekday_is_monday+data_channel_is_world+data_channel_is_tech+data_channel_is_socmed+data_channel_is_bus+data_channel_is_entertainment, data = OnlineNewsPopDataTrain, 
+                 method = "gbm", 
+                 preProcess = c("center", "scale"),
+                 trControl = fitControl, 
+                 verbose = FALSE, 
+                 tuneGrid = gbmGrid)
+gbmFit
+```
+
+```{r}
+#Compare two models on the test set
+treePred<-predict(treeFit,newdata=select(OnlineNewsPopDataTest,-shares))
+treeRMSE<-sqrt(mean((treePred-OnlineNewsPopDataTest$shares)^2))
+
+boostPred<-predict(gbmFit,newdata=select(OnlineNewsPopDataTest,-shares),n.trees=5000)
+boostRMSE<-sqrt(mean((boostPred-OnlineNewsPopDataTest$shares)^2))
+c(tree=treeRMSE,boost=boostRMSE)
+
+```
+
