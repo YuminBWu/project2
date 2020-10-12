@@ -228,11 +228,12 @@ gbmFit
     ##   3                  10766.65  0.00432907  3279.632
     ## 
     ## Tuning parameter 'n.trees' was held constant at a value of 5000
-    ## Tuning parameter 'shrinkage' was held constant at a
-    ##  value of 0.1
+    ## Tuning parameter 'shrinkage' was held
+    ##  constant at a value of 0.1
     ## Tuning parameter 'n.minobsinnode' was held constant at a value of 20
     ## RMSE was used to select the optimal model using the smallest value.
-    ## The final values used for the model were n.trees = 5000, interaction.depth = 1, shrinkage = 0.1 and n.minobsinnode = 20.
+    ## The final values used for the model were n.trees = 5000, interaction.depth = 1, shrinkage = 0.1
+    ##  and n.minobsinnode = 20.
 
 Comparison
 ----------
