@@ -66,70 +66,70 @@ corrplot(news_correlation, type = "upper", tl.pos = "lt")
 corrplot(news_correlation, type = "lower", method = "number", add = TRUE, tl.pos = "n")
 ```
 
-![](project2_st558_files/figure-markdown_github/unnamed-chunk-4-1.png)
+![](day_weekday_is_monday_files/figure-markdown_github/unnamed-chunk-4-1.png)
 
 ``` r
 ggplot(OnlineNewsPopDataTrain, aes(x = n_tokens_content, y = shares)) +
 geom_point() 
 ```
 
-![](project2_st558_files/figure-markdown_github/unnamed-chunk-4-2.png)
+![](day_weekday_is_monday_files/figure-markdown_github/unnamed-chunk-4-2.png)
 
 ``` r
 ggplot(OnlineNewsPopDataTrain, aes(x = num_hrefs, y = shares)) +
 geom_point() 
 ```
 
-![](project2_st558_files/figure-markdown_github/unnamed-chunk-4-3.png)
+![](day_weekday_is_monday_files/figure-markdown_github/unnamed-chunk-4-3.png)
 
 ``` r
 ggplot(OnlineNewsPopDataTrain, aes(x = num_videos, y = shares)) +
 geom_point() 
 ```
 
-![](project2_st558_files/figure-markdown_github/unnamed-chunk-4-4.png)
+![](day_weekday_is_monday_files/figure-markdown_github/unnamed-chunk-4-4.png)
 
 ``` r
 ggplot(OnlineNewsPopDataTrain, aes(x = num_imgs, y = shares)) +
 geom_point()
 ```
 
-![](project2_st558_files/figure-markdown_github/unnamed-chunk-4-5.png)
+![](day_weekday_is_monday_files/figure-markdown_github/unnamed-chunk-4-5.png)
 
 ``` r
 ggplot(OnlineNewsPopDataTrain, aes(x = data_channel_is_socmed, y = shares)) +
 geom_point() 
 ```
 
-![](project2_st558_files/figure-markdown_github/unnamed-chunk-4-6.png)
+![](day_weekday_is_monday_files/figure-markdown_github/unnamed-chunk-4-6.png)
 
 ``` r
 ggplot(OnlineNewsPopDataTrain, aes(x = data_channel_is_socmed, y = shares)) +
 geom_point() 
 ```
 
-![](project2_st558_files/figure-markdown_github/unnamed-chunk-4-7.png)
+![](day_weekday_is_monday_files/figure-markdown_github/unnamed-chunk-4-7.png)
 
 ``` r
 ggplot(OnlineNewsPopDataTrain, aes(x = data_channel_is_entertainment, y = shares)) +
 geom_point() 
 ```
 
-![](project2_st558_files/figure-markdown_github/unnamed-chunk-4-8.png)
+![](day_weekday_is_monday_files/figure-markdown_github/unnamed-chunk-4-8.png)
 
 ``` r
 ggplot(OnlineNewsPopDataTrain, aes(x = data_channel_is_tech, y = shares)) +
 geom_point() 
 ```
 
-![](project2_st558_files/figure-markdown_github/unnamed-chunk-4-9.png)
+![](day_weekday_is_monday_files/figure-markdown_github/unnamed-chunk-4-9.png)
 
 ``` r
 ggplot(OnlineNewsPopDataTrain, aes(x = data_channel_is_world, y = shares)) +
 geom_point() 
 ```
 
-![](project2_st558_files/figure-markdown_github/unnamed-chunk-4-10.png)
+![](day_weekday_is_monday_files/figure-markdown_github/unnamed-chunk-4-10.png)
 
 ``` r
 OnlineNewsPopDataTrain %>%summarise(
@@ -144,10 +144,9 @@ OnlineNewsPopDataTrain %>%summarise(
 ```
 
     ## # A tibble: 1 x 7
-    ##   count mean_tokens_tit~ mean_tokens_con~ mean_imgs mean_videos mean_links
-    ##   <int>            <dbl>            <dbl>     <dbl>       <dbl>      <dbl>
-    ## 1 27750             10.4             546.      4.55        1.25       10.8
-    ## # ... with 1 more variable: mean_other_links <dbl>
+    ##   count mean_tokens_title mean_tokens_content mean_imgs mean_videos mean_links mean_other_links
+    ##   <int>             <dbl>               <dbl>     <dbl>       <dbl>      <dbl>            <dbl>
+    ## 1 27750              10.4                546.      4.55        1.25       10.8             3.30
 
 Model
 -----
@@ -188,7 +187,7 @@ plot(treeFit)
 text(treeFit, cex=.6,use.n = TRUE, xpd = TRUE)
 ```
 
-![](project2_st558_files/figure-markdown_github/unnamed-chunk-5-1.png)
+![](day_weekday_is_monday_files/figure-markdown_github/unnamed-chunk-5-1.png)
 
 ``` r
 #a boosted tree model chosen using cross-validation
@@ -229,13 +228,11 @@ gbmFit
     ##   3                  10859.77  0.004235065  3324.532
     ## 
     ## Tuning parameter 'n.trees' was held constant at a value of 5000
-    ## 
-    ## Tuning parameter 'shrinkage' was held constant at a value of 0.1
-    ## 
+    ## Tuning parameter 'shrinkage' was held constant at a
+    ##  value of 0.1
     ## Tuning parameter 'n.minobsinnode' was held constant at a value of 20
     ## RMSE was used to select the optimal model using the smallest value.
-    ## The final values used for the model were n.trees = 5000, interaction.depth =
-    ##  1, shrinkage = 0.1 and n.minobsinnode = 20.
+    ## The final values used for the model were n.trees = 5000, interaction.depth = 1, shrinkage = 0.1 and n.minobsinnode = 20.
 
 Comparison
 ----------

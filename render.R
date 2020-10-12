@@ -5,7 +5,7 @@ wday <- c("weekday_is_monday", "weekday_is_tuesday", "weekday_is_wednesday",
 
 for (i in 1:length(wday)) {
   render(input="C:/Users/yumin/Desktop/ST558/project2/project2_st558.Rmd", params = list(days = wday[i]), 
-         output_file = paste0("day_", wday[i], ".html"))
+         output_file = paste0("day_", wday[i], ".md"))
 }
 
 

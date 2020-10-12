@@ -26,6 +26,10 @@ library(gbm)
 library(rmarkdown)
 ```
 
+##Introduction   
+The data set is about the number of sharing articles on a website. There are 19 predictors in this data. Such as: Number of words in the title,Number of words in the content, Number of links, Number of links to other articles published by Mashable, Number of links to other articles published by Mashable, Number of images,Number of videos, different kinds of channels (Lifestyle,Entertainment,Business, Social Media, Tech, World...) and if the article is published on Monday, Tuesday, Wednesday, etc. The purpose of my analysis is to find which factors would lead to more shares. I would use regression tree model and boosted tree model.  
+
+
 ```{r}
 #Read in and process data
 OnlineNewsPopularity<-read.csv("../dataset/OnlineNewsPopularity.csv")
@@ -59,6 +63,11 @@ test <- setdiff(1:nr, train)
 OnlineNewsPopDataTrain <- OnlineNewsPopularity[train, ]
 OnlineNewsPopDataTest <- OnlineNewsPopularity[test, ]
 ```
+
+
+##Visual plots  
+The first plot is the correlation among the variables.
+The scatter plots show the relationships between the number of shares  and the number of words in contents, the number of links, the number of pictures and the number of videos.  
 
 ```{r}
 #Summarization
@@ -95,6 +104,11 @@ OnlineNewsPopDataTrain %>%summarise(
           )
 ```
 
+
+##Model  
+For the unensembled tree model, I checked the correlation among the variables and the scatter plots to choose the predictors. Set the different values for minsplit and cp to choose the final model.Then choose the model with the smaller RMSE.  
+For the second model, I used the boosted tree method to build the model, set the grid for tuning parameters and used cross validation to choose the final model.  
+
 ```{r}
 #a (not ensemble) tree-based model
 set.seed(2)
@@ -102,9 +116,19 @@ cur_d = params$days
 formula = paste0("shares~num_hrefs+num_imgs+num_videos+",cur_d,"+data_channel_is_world+data_channel_is_tech+data_channel_is_socmed+data_channel_is_bus+data_channel_is_entertainment")
 formula = as.formula(formula)
 
-treeFit<-rpart(formula, data=OnlineNewsPopDataTrain, method="anova",control=rpart.control(minsplit=20, cp=0.001) )
+treeFit0<-rpart(formula, data=OnlineNewsPopDataTrain, method="anova",control=rpart.control(minsplit=20, cp=0.001) )
 
-treeFit
+treeFit<-rpart(formula, data=OnlineNewsPopDataTrain, method="anova",control=rpart.control(minsplit=30, cp=0.001) )
+
+tree0Pred<-predict(treeFit0,newdata=select(OnlineNewsPopDataTest,-shares))
+tree0RMSE<-sqrt(mean((tree0Pred-OnlineNewsPopDataTest$shares)^2))
+
+treePred<-predict(treeFit,newdata=select(OnlineNewsPopDataTest,-shares))
+treeRMSE<-sqrt(mean((treePred-OnlineNewsPopDataTest$shares)^2))
+
+tree0RMSE
+treeRMSE
+
 plot(treeFit)
 text(treeFit, cex=.6,use.n = TRUE, xpd = TRUE)
 ```
@@ -134,6 +158,8 @@ gbmFit
 
 ```
 
+## Comparison  
+I used the test data set to predict in order to compare the RMSE between two models. The final model should be the boosted tree model. As the RMSE of it is less than that of the unensembled tree model.
 ```{r}
 #Compare two models on the test set
 treePred<-predict(treeFit,newdata=select(OnlineNewsPopDataTest,-shares))
