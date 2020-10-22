@@ -142,7 +142,7 @@ fitControl <- trainControl(
                            method = "cv",
                            number = 10)
 gbmGrid <-  expand.grid(interaction.depth = c(1, 3), 
-                        n.trees = 5000, 
+                        n.trees = 500, 
                         shrinkage = 0.1,
                         n.minobsinnode = 20)
 formula = paste0("shares~num_hrefs+num_imgs+num_videos+",cur_d,"+data_channel_is_world+data_channel_is_tech+data_channel_is_socmed+data_channel_is_bus+data_channel_is_entertainment")
@@ -165,7 +165,7 @@ I used the test data set to predict in order to compare the RMSE between two mod
 treePred<-predict(treeFit,newdata=select(OnlineNewsPopDataTest,-shares))
 treeRMSE<-sqrt(mean((treePred-OnlineNewsPopDataTest$shares)^2))
 
-boostPred<-predict(gbmFit,newdata=select(OnlineNewsPopDataTest,-shares),n.trees=5000)
+boostPred<-predict(gbmFit,newdata=select(OnlineNewsPopDataTest,-shares),n.trees=500)
 boostRMSE<-sqrt(mean((boostPred-OnlineNewsPopDataTest$shares)^2))
 c(tree=treeRMSE,boost=boostRMSE)
 
