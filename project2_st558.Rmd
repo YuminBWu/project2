@@ -32,7 +32,7 @@ The data set is about the number of sharing articles on a website. There are 19 
 
 ```{r}
 #Read in and process data
-OnlineNewsPopularity<-read.csv("../dataset/OnlineNewsPopularity.csv")
+OnlineNewsPopularity<-read.csv("dataset/OnlineNewsPopularity.csv")
 
 OnlineNewsPopularity<-OnlineNewsPopularity%>%select(n_tokens_title,n_tokens_content,num_hrefs,num_self_hrefs,num_imgs,num_videos,data_channel_is_lifestyle,data_channel_is_entertainment,data_channel_is_bus,data_channel_is_socmed,data_channel_is_tech,data_channel_is_world,weekday_is_monday,weekday_is_tuesday,weekday_is_wednesday,weekday_is_thursday,weekday_is_friday,weekday_is_saturday,weekday_is_sunday,shares)
 
@@ -170,4 +170,32 @@ boostRMSE<-sqrt(mean((boostPred-OnlineNewsPopDataTest$shares)^2))
 c(tree=treeRMSE,boost=boostRMSE)
 
 ```
+
+
+##Linear Model: Training
+
+```{r}
+lmFit <- train(shares ~ ., data = OnlineNewsPopDataTrain,
+               method = "lm")
+
+summary(lmFit)
+```
+
+
+##Linear Model: Test  
+
+```{r}
+lmPred <- predict(lmFit, newdata = OnlineNewsPopDataTest)
+lmPred.res <- postResample(lmPred, OnlineNewsPopDataTest$shares)
+round(lmPred.res, 3)
+```
+
+
+
+
+
+
+
+
+
 
